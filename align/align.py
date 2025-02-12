@@ -133,26 +133,32 @@ class NeedlemanWunsch:
         n = len(self._seqA)
         m = len(self._seqB)
         
-        # Initialise M matrix (alignment scores)
+        # Initialise alignment scores matrix
         # Default penalty should be -inf
-        M = np.full((n + 1, m + 1), -float(‘inf’))
-        M[0][0] = 0
+        self._align_matrix = np.full((n + 1, m + 1), -float('inf'))
+        self._align_matrix[0][0] = 0
+        
+        # Initialise gap matrices 
+        self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
+        self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
         
         # Now calculate M(0, j) and M(i, 0)
         for i in range(0, n + 1):
-        #  M[i,0] = 
+            pass
+        #  M[i,0] = gap penalty score * 
         
         for j in range(0, m + 1):
+            pass
         # M[0,j] = 
 
 
 
-        
-        pass
-
-        
-        # TODO: Implement global alignment here
-        pass      		
+        # return (self.alignment_score, self.seqA_align, self.seqB_align)
+        # pass
+        # 
+        # 
+        # # TODO: Implement global alignment here
+        # pass      		
         		    
         return self._backtrace()
 
