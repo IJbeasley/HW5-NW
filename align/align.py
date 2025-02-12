@@ -128,6 +128,26 @@ class NeedlemanWunsch:
         
         # TODO: Initialize matrix private attributes for use in alignment
         # create matrices for alignment scores, gaps, and backtracing
+        
+        # Length of each sequence
+        n = len(self._seqA)
+        m = len(self._seqB)
+        
+        # Initialise M matrix (alignment scores)
+        # Default penalty should be -inf
+        M = np.full((n + 1, m + 1), -float(‘inf’))
+        M[0][0] = 0
+        
+        # Now calculate M(0, j) and M(i, 0)
+        for i in range(0, n + 1):
+        #  M[i,0] = 
+        
+        for j in range(0, m + 1):
+        # M[0,j] = 
+
+
+
+        
         pass
 
         
