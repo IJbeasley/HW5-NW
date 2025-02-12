@@ -142,14 +142,53 @@ class NeedlemanWunsch:
         self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
         self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
         
-        # Now calculate M(0, j) and M(i, 0)
+        # Initialise backtracing matrix
+        self._back = np.full((n + 1, m + 1), -float('inf'))
+        
+        # Now calculate gap penalty scores
+        # for fully gapped sequences 
         for i in range(0, n + 1):
-            pass
+            # penalty for opening gap + penalty for extending gap * length of extension
+            self._gapA_matrix[i,0] = self.gap_open + self.gap_extend * i
         #  M[i,0] = gap penalty score * 
         
         for j in range(0, m + 1):
-            pass
+            # penalty for opening gap + penalty for extending gap * length of extension
+            self._gapB_matrix[0,j] = self.gap_open + self.gap_extend * j
         # M[0,j] = 
+        
+        # Build Local Table
+        
+        # Start with M(0, j) and M(i, 0)
+        
+        # tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4} or {('A', 'D'): -8}
+        
+        # for every combination of bases in seqA and seqB 
+        # calculate local alignment score row by row 
+        # (row by row calculation is why i/seqA indexes are the outer for loop)
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+        
+            
+            # M(i,j) = max(M(i-1, j) + 0, M(i, j-1) + 0, M(i-1, j-1) + t(i, j)
+            
+            # calculate local alignment score row by row
+            # M(i,j) = max(0,
+            #              M(i, j-1) + 0, 
+            #              M(i-1, j) + 0,
+            #              M(i-1,j-1) + sim(s1[i], s2[j])
+            #              )
+            
+            # get relevant subsitition score (sim(s1[i], s2[j]))
+            sub_score = self.sub_dict[(seqA[i], seqB[j])]
+            
+            # self._align_matrix[i-1,j-1] + sim_score
+            # 
+            # self._align_matrix[i-1,j] #+ gap penalty
+            
+            
+        
+        
 
 
 
@@ -176,7 +215,11 @@ class NeedlemanWunsch:
          	(alignment score, seqA alignment, seqB alignment) : Tuple[float, str, str]
          		the score and corresponding strings for the alignment of seqA and seqB
         """
-        pass
+        #pass
+        
+        # Length of each sequence
+        n = len(self._seqA)
+        m = len(self._seqB)
 
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
