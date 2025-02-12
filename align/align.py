@@ -136,14 +136,14 @@ class NeedlemanWunsch:
         # Initialise alignment scores matrix
         # Default penalty should be -inf
         self._align_matrix = np.full((n + 1, m + 1), -float('inf'))
-        self._align_matrix[0][0] = 0
+        self._align_matrix[0,0] = 0
         
         # Initialise gap matrices 
         self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
         self._gapB_matrix = np.full((n + 1, m + 1), -float('inf'))
         
         # Initialise backtracing matrix
-        self._back = np.full((n + 1, m + 1), -float('inf'))
+        self._back = np.zeros((n + 1, m + 1))
         
         # Now calculate gap penalty scores
         # for fully gapped sequences 
@@ -155,12 +155,12 @@ class NeedlemanWunsch:
             # penalty for opening gap + penalty for extending gap * length of extension
             self._gapB_matrix[0,j] = self.gap_open + self.gap_extend * j
         
-        # Build Local Table
         # ? Start with M(0, j) and M(i, 0)
         for i in range(1, n + 1):
-            self._align_matrix[i, 0] = self.gap_open + (i - 1) * self.gap_extend  # Gap in seqB
+            self._align_matrix[i, 0] = self.gap_open + i * self.gap_extend
+
         for j in range(1, m + 1):
-            self._align_matrix[0, j] = self.gap_open + (j - 1) * self.gap_extend  # Gap in seqA
+            self._align_matrix[0, j] = self.gap_open + j * self.gap_extend
         
         # for every combination of bases in seqA and seqB 
         # calculate local alignment score row by row 
@@ -180,12 +180,12 @@ class NeedlemanWunsch:
             
                 # get relevant subsitition score (sim(s1[i], s2[j]))
                 # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
-                sub_score = self.sub_dict[(self._seqA[i], self._seqB[j])]
+                sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])]
                 
-                self._align_matrix = max(self._align_matrix[i-1,j-1] + sub_score,
-                                         self._align_matrix[i-1,j] + self.gap_extend,
-                                         self._align_matrix[i, j-1] + self.gap_extend
-                                         )
+                self._align_matrix[i, j] = max(self._align_matrix[i-1, j-1] + sub_score,
+                                               self._gapA_matrix[i, j],  
+                                               self._gapB_matrix[i, j]
+                                               )
                 
         
         # return (self.alignment_score, self.seqA_align, self.seqB_align)
