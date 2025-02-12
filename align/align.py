@@ -140,7 +140,7 @@ class NeedlemanWunsch:
         
         # Initialise gap matrices 
         self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
-        self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
+        self._gapB_matrix = np.full((n + 1, m + 1), -float('inf'))
         
         # Initialise backtracing matrix
         self._back = np.full((n + 1, m + 1), -float('inf'))
@@ -170,32 +170,25 @@ class NeedlemanWunsch:
             for j in range(1, m + 1):
         
             
-            # M(i,j) = max(M(i-1, j) + 0, M(i, j-1) + 0, M(i-1, j-1) + t(i, j)
+                # M(i,j) = max(M(i-1, j) + 0, M(i, j-1) + 0, M(i-1, j-1) + t(i, j)
             
-            # calculate local alignment score row by row
-            # M(i,j) = max(0,
-            #              M(i, j-1) + 0, 
-            #              M(i-1, j) + 0,
-            #              M(i-1,j-1) + sim(s1[i], s2[j])
-            #              )
+                # calculate local alignment score row by row
+                # M(i,j) = max(0,
+                #              M(i, j-1) + 0, 
+                #              M(i-1, j) + 0,
+                #              M(i-1,j-1) + sim(s1[i], s2[j])
+                #              )
             
-            # get relevant subsitition score (sim(s1[i], s2[j]))
-            sub_score = self.sub_dict[(seqA[i], seqB[j])]
-            
-            # self._align_matrix[i-1,j-1] + sim_score
-            # 
-            # self._align_matrix[i-1,j] #+ gap penalty
+                # get relevant subsitition score (sim(s1[i], s2[j]))
+                sub_score = self.sub_dict[(self._seqA[i], self._seqB[j])]
+                
+                # self._align_matrix[i-1,j-1] + sim_score
+                # 
+                # self._align_matrix[i-1,j] #+ gap penalty
             
             
         
-        
-
-
-
         # return (self.alignment_score, self.seqA_align, self.seqB_align)
-        # pass
-        # 
-        # 
         # # TODO: Implement global alignment here
         # pass      		
         		    
