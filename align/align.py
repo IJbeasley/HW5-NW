@@ -150,18 +150,14 @@ class NeedlemanWunsch:
         for i in range(0, n + 1):
             # penalty for opening gap + penalty for extending gap * length of extension
             self._gapA_matrix[i,0] = self.gap_open + self.gap_extend * i
-        #  M[i,0] = gap penalty score * 
         
         for j in range(0, m + 1):
             # penalty for opening gap + penalty for extending gap * length of extension
             self._gapB_matrix[0,j] = self.gap_open + self.gap_extend * j
-        # M[0,j] = 
         
         # Build Local Table
         
-        # Start with M(0, j) and M(i, 0)
-        
-        # tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4} or {('A', 'D'): -8}
+        # ? Start with M(0, j) and M(i, 0)
         
         # for every combination of bases in seqA and seqB 
         # calculate local alignment score row by row 
@@ -170,16 +166,15 @@ class NeedlemanWunsch:
             for j in range(1, m + 1):
         
             
-                # M(i,j) = max(M(i-1, j) + 0, M(i, j-1) + 0, M(i-1, j-1) + t(i, j)
             
-                # calculate local alignment score row by row
                 # M(i,j) = max(0,
-                #              M(i, j-1) + 0, 
-                #              M(i-1, j) + 0,
+                #              M(i, j-1) + sim(—, s2[j]), 
+                #              M(i-1, j) + sim(s1[i], —),
                 #              M(i-1,j-1) + sim(s1[i], s2[j])
                 #              )
             
                 # get relevant subsitition score (sim(s1[i], s2[j]))
+                # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
                 sub_score = self.sub_dict[(self._seqA[i], self._seqB[j])]
                 
                 # self._align_matrix[i-1,j-1] + sim_score
