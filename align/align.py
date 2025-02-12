@@ -145,6 +145,10 @@ class NeedlemanWunsch:
         # Initialise backtracing matrix
         self._back = np.zeros((n + 1, m + 1))
         
+        
+        
+        # TODO: Implement global alignment here
+        
         # Now calculate gap penalty scores
         # for fully gapped sequences 
         for i in range(0, n + 1):
@@ -187,11 +191,6 @@ class NeedlemanWunsch:
                                                self._gapB_matrix[i, j]
                                                )
                 
-        
-        # return (self.alignment_score, self.seqA_align, self.seqB_align)
-        # # TODO: Implement global alignment here
-        # pass      		
-        		    
         return self._backtrace()
 
     def _backtrace(self) -> Tuple[float, str, str]:
@@ -213,6 +212,35 @@ class NeedlemanWunsch:
         # Length of each sequence
         n = len(self._seqA)
         m = len(self._seqB)
+        
+        # start at n,m - and traceback best path
+        while n>0 or m>0:  
+         
+         # up
+         up = self._align_matrix[n-1, m]
+         # left
+         left = self._align_matrix[n, m-1]
+         # diagonal:
+         diag = self._align_matrix[n-1, m-1]
+
+         # trace the best path  
+         best = max(up,
+                    left,
+                    diag
+                    )
+       
+         if best == diag:
+            n -= 1
+            m -= 1
+         
+         elif best == left:
+            n -= 1
+        
+         else: 
+            m -= 1
+
+        
+        self.alignment_score = self._align_matrix[n,m]
 
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
