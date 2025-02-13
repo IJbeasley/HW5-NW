@@ -203,7 +203,7 @@ class NeedlemanWunsch:
                                        
                 # store traceback direction: 
                 if best_align_score == match_score:
-                   self._back[i, j] = 0  # Diagonal (match/mismatch)
+                   self._back[i, j] = 0  # Diagonal 
                 elif best_align_score == gapA_score:
                    self._back[i, j] = 1  # Up 
                 else:
@@ -236,32 +236,35 @@ class NeedlemanWunsch:
         while n>0 or m>0:  
          
          traceback = self._back[n,m]
-         # up
-         
-         # up = self._align_matrix[n-1, m]
-         # # left
-         # left = self._align_matrix[n, m-1]
-         # # diagonal:
-         # diag = self._align_matrix[n-1, m-1]
-         # 
-         # # trace the best path  
-         # best = max(up,
-         #            left,
-         #            diag
-         #            )
        
-         # if diagonal
+         # if diagonal 
          if traceback == 0:
+            # if diagonal, match is best alignment: 
+            self.seqA_align = self._seqA[n-1] + self.seqA_align
+            self.seqB_align = self._seqB[m-1] + self.seqB_align
+            
+            # now move diagonal:
             n -= 1
             m -= 1
+            
          
-         # if left
-         elif traceback == 1:
-            m -= 1
-        
          # if up
-         else: 
+         elif traceback == 1:
+            # if up, gap in sequence A is best alignment
+            self.seqA_align = "-" + self.seqA_align
+            self.seqB_align = self._seqB[m-1] + self.seqB_align
+            
+            # now move up
             n -= 1
+        
+         # if left
+         else: 
+            # if left, gap in sequence B is best alignment
+            self.seqA_align = self._seqA[n-1] + self.seqA_align
+            self.seqB_align = "-" + self.seqB_align
+            
+            # now move left
+            m -= 1
 
         
         self.alignment_score = self._align_matrix[n,m]
