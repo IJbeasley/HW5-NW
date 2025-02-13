@@ -226,11 +226,12 @@ class NeedlemanWunsch:
          	(alignment score, seqA alignment, seqB alignment) : Tuple[float, str, str]
          		the score and corresponding strings for the alignment of seqA and seqB
         """
-        #pass
         
         # Length of each sequence
         n = len(self._seqA)
         m = len(self._seqB)
+        
+        self.alignment_score = self._align_matrix[n,m]
         
         # start at n,m - and traceback best path
         while n>0 or m>0:  
@@ -267,8 +268,6 @@ class NeedlemanWunsch:
             m -= 1
 
         
-        self.alignment_score = self._align_matrix[n,m]
-
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
 
