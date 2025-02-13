@@ -31,7 +31,7 @@ Note: To check that you have correctly implemented your algorithm the following 
 	M---QLIRHP
 
 
-[X] Ensure that it runs pytest
+* [X] Ensure that it runs pytest
 
 ### Pip Installable
 * [X] make .toml file with flit and ensure that your package can be installed with pip
