@@ -173,23 +173,42 @@ class NeedlemanWunsch:
             for j in range(1, m + 1):
         
                 # gapA matrix is max (new gap penalty, continuing gap penalty)
-                self._gapA_matrix[i,j] = max(self._align_matrix[i-1,j] + self.gap_open,
-                                             self._gapA_matrix[i-1,j] + self.gap_extend
-                )
-                                             
+                gapA_score = max(
+                                 self._align_matrix[i-1,j] + self.gap_open,
+                                 self._gapA_matrix[i-1,j] + self.gap_extend
+                                 )
+                
+                self._gapA_matrix[i,j] = gapA_score
+                                              
                 # gapB matrix is max (new gap penalty, continuing gap penalty)
-                self._gapB_matrix[i,j] = max(self._align_matrix[i,j-1] + self.gap_open,
-                                             self._gapB_matrix[i,j-1] + self.gap_extend
-                                             )
+                gapB_score = max(
+                                 self._align_matrix[i,j-1] + self.gap_open,
+                                 self._gapB_matrix[i,j-1] + self.gap_extend
+                                 )
+                                             
+                self._gapB_matrix[i,j] = gapB_score
             
                 # get relevant subsitition score (sim(s1[i], s2[j]))
                 # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
-                sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])]
+                sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])] 
+                match_score = self._align_matrix[i-1, j-1] + sub_score
                 
-                self._align_matrix[i, j] = max(self._align_matrix[i-1, j-1] + sub_score,
-                                               self._gapA_matrix[i, j],  
-                                               self._gapB_matrix[i, j]
-                                               )
+                best_align_score = max(
+                                       match_score,
+                                       gapA_score,
+                                       gapB_score
+                                       )
+                
+                self._align_matrix[i, j] =  best_align_score                   
+                                       
+                # store traceback direction: 
+                if best_align_score == match_score:
+                   self._back[i, j] = 0  # Diagonal (match/mismatch)
+                elif best_align_score == gapA_score:
+                   self._back[i, j] = 1  # Up 
+                else:
+                  self._back[i, j] = 2  # Left 
+                                               
                 
         return self._backtrace()
 
@@ -216,28 +235,33 @@ class NeedlemanWunsch:
         # start at n,m - and traceback best path
         while n>0 or m>0:  
          
+         traceback = self._back[n,m]
          # up
-         up = self._align_matrix[n-1, m]
-         # left
-         left = self._align_matrix[n, m-1]
-         # diagonal:
-         diag = self._align_matrix[n-1, m-1]
-
-         # trace the best path  
-         best = max(up,
-                    left,
-                    diag
-                    )
+         
+         # up = self._align_matrix[n-1, m]
+         # # left
+         # left = self._align_matrix[n, m-1]
+         # # diagonal:
+         # diag = self._align_matrix[n-1, m-1]
+         # 
+         # # trace the best path  
+         # best = max(up,
+         #            left,
+         #            diag
+         #            )
        
-         if best == diag:
+         # if diagonal
+         if traceback == 0:
             n -= 1
             m -= 1
          
-         elif best == left:
-            n -= 1
-        
-         else: 
+         # if left
+         elif traceback == 1:
             m -= 1
+        
+         # if up
+         else: 
+            n -= 1
 
         
         self.alignment_score = self._align_matrix[n,m]
