@@ -194,7 +194,7 @@ class NeedlemanWunsch:
               
                 self._align_matrix[i,j] = match_score
         
-                # 1. Update / fill gapA matrix
+                # 2. Update / fill gapA matrix
                 # gapA_matrix[i,j] is max (new gap penalty, continuing gap penalty)
                 gapA_score = max(
                                  self._align_matrix[i-1,j] + self.gap_open + self.gap_extend,  # Start new gap
@@ -203,7 +203,7 @@ class NeedlemanWunsch:
                 
                 self._gapA_matrix[i,j] = gapA_score
                                               
-                # 2. Update / fill gapB matrix
+                # 3. Update / fill gapB matrix
                 # gapB_matrix[i,j] is max (new gap penalty, continuing gap penalty)
                 gapB_score = max(
                                  self._align_matrix[i,j-1] + self.gap_open + self.gap_extend,  # Start new gap
