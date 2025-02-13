@@ -143,13 +143,13 @@ class NeedlemanWunsch:
         self._gapB_matrix = np.full((n + 1, m + 1), -float('inf'))
         
         # Initialise backtracing matrix
-        self._back = np.zeros((n + 1, m + 1))
+        # Fill with -10 as 0,1,2 have meanings
+        # so -10 is used to indicate that the backtracing matrix hasn't been completed properly
+        self._back = np.full((n + 1, m + 1), -10, dtype=int)
         
+        # Implement global alignment here
         
-        
-        # TODO: Implement global alignment here
-        
-        # Now calculate gap penalty scores
+        # Calculate gap penalty scores
         # for fully gapped sequences 
         for i in range(0, n + 1):
             # penalty for opening gap + penalty for extending gap * length of extension
@@ -190,7 +190,11 @@ class NeedlemanWunsch:
             
                 # get relevant subsitition score (sim(s1[i], s2[j]))
                 # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
-                sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])] 
+                if (self._seqA[i-1], self._seqB[j-1]) not in self.sub_dict:
+                    raise ValueError(f"Residue pair ({self._seqA[i-1]}, {self._seqB[j-1]}) missing from substitution matrix.")
+                else:
+                    sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])] 
+                    
                 match_score = self._align_matrix[i-1, j-1] + sub_score
                 
                 best_align_score = max(
@@ -236,38 +240,56 @@ class NeedlemanWunsch:
         # start at n,m - and traceback best path
         while n>0 or m>0:  
          
-         traceback = self._back[n,m]
+              traceback = self._back[n,m]
+              
+              # handling edge cases: 
+              if n == 0:  # If we reach the top, we must go left
+                 self.seqA_align = "-" + self.seqA_align
+                 self.seqB_align = self._seqB[m-1] + self.seqB_align
+                 m -= 1
+                 continue
+         
+              elif m == 0:  # If we reach the leftmost column, we must go up
+                 self.seqA_align = self._seqA[n-1] + self.seqA_align
+                 self.seqB_align = "-" + self.seqB_align
+                 n -= 1
+                 continue
        
-         # if diagonal 
-         if traceback == 0:
-            # if diagonal, match is best alignment: 
-            self.seqA_align = self._seqA[n-1] + self.seqA_align
-            self.seqB_align = self._seqB[m-1] + self.seqB_align
+              # now following traceback steps:
+              # diagonal 
+              if traceback == 0:
+              # if diagonal, match is best alignment: 
+                 self.seqA_align = self._seqA[n-1] + self.seqA_align
+                 self.seqB_align = self._seqB[m-1] + self.seqB_align
             
-            # now move diagonal:
-            n -= 1
-            m -= 1
+                 # now move diagonal:
+                 n -= 1
+                 m -= 1
             
          
-         # if up
-         elif traceback == 1:
-            # if up, gap in sequence A is best alignment
-            self.seqA_align = "-" + self.seqA_align
-            self.seqB_align = self._seqB[m-1] + self.seqB_align
+              # up
+              elif traceback == 1:
+              # if up, gap in sequence B is best alignment
+                   self.seqA_align = self._seqA[n-1] + self.seqA_align
+                   self.seqB_align = "-" + self.seqB_align
             
-            # now move up
-            n -= 1
+                   # now move up
+                   n -= 1
         
-         # if left
-         else: 
-            # if left, gap in sequence B is best alignment
-            self.seqA_align = self._seqA[n-1] + self.seqA_align
-            self.seqB_align = "-" + self.seqB_align
+              # left
+              elif traceback == 2: 
+              # if left, gap in sequence A is best alignment
+                   self.seqA_align = "-" + self.seqA_align
+                   self.seqB_align = self._seqB[m-1] + self.seqB_align
             
-            # now move left
-            m -= 1
+                   # now move left
+                   m -= 1
+        
+              # catching problems where the traceback matrix was not filled in
+              elif traceback == -10:
+                   raise ValueError("Traceback matrix self._back was not completed correctly")
 
-        
+
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
 
