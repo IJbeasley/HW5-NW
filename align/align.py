@@ -136,7 +136,6 @@ class NeedlemanWunsch:
         # Initialise alignment scores matrix
         # Default penalty should be -inf
         self._align_matrix = np.full((n + 1, m + 1), -float('inf'))
-        self._align_matrix[0,0] = 0
         
         # Initialise gap matrices 
         self._gapA_matrix = np.full((n + 1, m + 1), -float('inf'))
@@ -149,8 +148,16 @@ class NeedlemanWunsch:
         
         # Implement global alignment here
         
-        # Calculate gap penalty scores
-        # for fully gapped sequences 
+        # Start by filling M(0, j) and M(i, 0)
+        self._align_matrix[0,0] = 0
+        for i in range(1, n + 1):
+            self._align_matrix[i, 0] = self.gap_open + i * self.gap_extend
+        for j in range(1, m + 1):
+            self._align_matrix[0, j] = self.gap_open + j * self.gap_extend
+        
+        # Then, calculate gap penalty scores
+        # for fully gapped sequences: 
+        # i.e. by Filling gapA(i,0) and gapB(j,0)
         for i in range(0, n + 1):
             # penalty for opening gap + penalty for extending gap * length of extension
             self._gapA_matrix[i,0] = self.gap_open + self.gap_extend * i
@@ -158,16 +165,10 @@ class NeedlemanWunsch:
         for j in range(0, m + 1):
             # penalty for opening gap + penalty for extending gap * length of extension
             self._gapB_matrix[0,j] = self.gap_open + self.gap_extend * j
+  
         
-        # ? Start with M(0, j) and M(i, 0)
-        for i in range(1, n + 1):
-            self._align_matrix[i, 0] = self.gap_open + i * self.gap_extend
-
-        for j in range(1, m + 1):
-            self._align_matrix[0, j] = self.gap_open + j * self.gap_extend
-        
-        # for every combination of bases in seqA and seqB 
-        # calculate local alignment score row by row 
+        # Next, for every combination of bases in seqA and seqB 
+        # calculate global alignment score row by row 
         # (row by row calculation is why i/seqA indexes are the outer for loop)
         for i in range(1, n + 1):
             for j in range(1, m + 1):
