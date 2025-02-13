@@ -43,30 +43,61 @@ def test_nw_alignment():
                               ])
     
     
-    print(NW_alg._align_matrix)
-    
     assert np.allclose(true_align_mat, NW_alg._align_matrix), "Error: Estimated alignment matrix is incorrect (for seq1 and seq2)" 
 
 
     # 2. Check gapA_matrix
-    # gapA_matrix should look like this: 
+    # Basic structure of gapA_matrix should look like this: 
     #[[-10 -inf. -inf. -inf.]
     # [-11 -inf. -inf. -inf.]
     # [-12  ?.  ?.  ?.]
-    # [-13 -?.  ?.  ?.]
-    # [-14 -?.  ?.  ?.]]
-    print(NW_alg._gapA_matrix)
+    # [-13  ?.  ?.  ?.]
+    # [-14  ?.  ?.  ?.]]
+    
+    # Using this basic structure, and the alignment score matrix above,
+    # by hand, gapA_matrix should look like this:
+    #[
+    # [-10 -inf. -inf. -inf.]
+    # [-11 -inf. -inf. -inf.]
+    # [-12,  5 - 11 = -6,  -11 -11 = -22., -13 - 11 = -24]
+    # [-13  max(-6 -1, -12 - 11) = -7, max(-22 - 1, 4 - 11) = -7,   max(-24 -1, -8 - 11) = -19]
+    # [-14  max(-7 -1, -14 - 11) = -8,  max(-7 -1, -1 - 11) = -8, max(-19 - 1, 5 - 11) = -6]
+    # ]
+    true_gapA_matrix = np.array([
+                                  [-10, -float('inf'), -float('inf'), -float('inf')],
+                                  [-11, -float('inf'), -float('inf'), -float('inf')],
+                                  [-12, -6, -22, -24],
+                                  [-13, -7, -7, -19],
+                                  [-14, -8, -8, -6]
+                                ])
+                                
+    assert np.allclose(NW_alg._gapA_matrix, true_gapA_matrix), "Error: Estimated gapA matrix is incorrect"
     
     # 3. Check gapB_matrix
-    # gapA_matrix should look like this: 
+    # Basic structure of gapB_matrix should look like this: 
     #[[-10 -11. -12. -13.]
     # [-inf  -inf. ?. ?.]
     # [-inf  -inf.  ?.  ?.]
     # [-inf -inf.  ?.  ?.]
     # [-inf -inf.  ?.  ?.]]
-    print(NW_alg._gapB_matrix)
     
-    raise ValueError("ello")
+    # Using this basic structure, and the alignment score matrix above,
+    # by hand, gapB_matrix should look like this:
+    #[[-10 -11. -12. -13.]
+    # [-inf  -inf. 5-11 = -6, max(-11 - 11, -6 - 1) = -7]
+    # [-inf  -inf.  -12 -11 = -23,   max(4 - 11,-23 - 1) = -7]
+    # [-inf -inf.  -12 - 11 = -23,  max(-1 -11 , -23 -1) = -12]
+    # [-inf -inf.  -14 - 11 = -25.  max(-6-11, 25 - 1) = -17]]
+    
+    true_gapB_matrix = np.array([
+                                  [-10, -11, -12, -13],
+                                  [-float('inf'), -float('inf'), -6, -7],
+                                  [-float('inf'), -float('inf'), -23, -7],
+                                  [-float('inf'), -float('inf'), -23, -12],
+                                  [-float('inf'), -float('inf'), -25, -17]
+                               ])
+
+    assert np.allclose(true_gapB_matrix, NW_alg._gapB_matrix), "Error: Estimated gapB matrix is incorrect"
     
 
 def test_nw_backtrace():
