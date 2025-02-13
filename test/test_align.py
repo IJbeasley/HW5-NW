@@ -25,12 +25,9 @@ def test_nw_alignment():
                             
     align_score, seq1_align, seq2_align = NW_alg.align(seq1, seq2)
     
-    print(align_score)
-    print(NW_alg._align_matrix)
-    print(NW_alg._align_matrix.all())
-    
-    # print(NW_alg._gapA_matrix)
-    # raise ValueError("?helo")
+    # print(align_score)
+    # print(NW_alg._align_matrix)
+    # print(NW_alg._align_matrix.all())
     
     pass
     
@@ -58,9 +55,7 @@ def test_nw_backtrace():
     
     assert seq3_align == 'MAVHQLIRRP', 'seq3 error'
     assert seq4_align == 'M---QLIRHP', 'seq4 error'
-    
-    # ??? current align score is +1 greater than expected - idk why
-    #assert align_score == 17, 'score error'
+    assert align_score == 17, 'score error'
     
 
 

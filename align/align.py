@@ -129,6 +129,10 @@ class NeedlemanWunsch:
         # TODO: Initialize matrix private attributes for use in alignment
         # create matrices for alignment scores, gaps, and backtracing
         
+        # check sequences are not empty:
+        if not self._seqA or not self._seqB:
+           raise ValueError("Sequences cannot be empty")
+        
         # Length of each sequence
         n = len(self._seqA)
         m = len(self._seqB)
@@ -174,19 +178,29 @@ class NeedlemanWunsch:
             for j in range(1, m + 1):
         
                 # gapA matrix is max (new gap penalty, continuing gap penalty)
+                # gapA_score = max(
+                #                  self._align_matrix[i-1,j] + self.gap_open,
+                #                  self._gapA_matrix[i-1,j] + self.gap_extend
+                #                  )
+                                 
                 gapA_score = max(
-                                 self._align_matrix[i-1,j] + self.gap_open,
-                                 self._gapA_matrix[i-1,j] + self.gap_extend
+                                 self._align_matrix[i-1,j] + self.gap_open + self.gap_extend,  # Start new gap
+                                 self._gapA_matrix[i-1,j] + self.gap_extend  # Extend existing gap
                                  )
                 
                 self._gapA_matrix[i,j] = gapA_score
                                               
                 # gapB matrix is max (new gap penalty, continuing gap penalty)
+                # gapB_score = max(
+                #                  self._align_matrix[i,j-1] + self.gap_open,
+                #                  self._gapB_matrix[i,j-1] + self.gap_extend
+                #                  )
+                #                  
                 gapB_score = max(
-                                 self._align_matrix[i,j-1] + self.gap_open,
-                                 self._gapB_matrix[i,j-1] + self.gap_extend
+                                 self._align_matrix[i,j-1] + self.gap_open + self.gap_extend,  # Start new gap
+                                 self._gapB_matrix[i,j-1] + self.gap_extend  # Extend existing gap
                                  )
-                                             
+                                
                 self._gapB_matrix[i,j] = gapB_score
             
                 # get relevant subsitition score (sim(s1[i], s2[j]))
