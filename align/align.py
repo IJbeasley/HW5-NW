@@ -154,10 +154,10 @@ class NeedlemanWunsch:
         
         # Start by filling M(0, j) and M(i, 0)
         self._align_matrix[0,0] = 0
-        for i in range(1, n + 1):
-            self._align_matrix[i, 0] = self.gap_open + i * self.gap_extend
-        for j in range(1, m + 1):
-            self._align_matrix[0, j] = self.gap_open + j * self.gap_extend
+        # for i in range(1, n + 1):
+        #     self._align_matrix[i, 0] = self.gap_open + i * self.gap_extend
+        # for j in range(1, m + 1):
+        #     self._align_matrix[0, j] = self.gap_open + j * self.gap_extend
         
         # Then, calculate gap penalty scores
         # for fully gapped sequences: 
@@ -176,13 +176,26 @@ class NeedlemanWunsch:
         # (row by row calculation is why i/seqA indexes are the outer for loop)
         for i in range(1, n + 1):
             for j in range(1, m + 1):
+              
+                # 1. Update / fill match matrix
+                
+                # Get relevant subsitition score (sim(s1[i], s2[j]))
+                # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
+                if (self._seqA[i-1], self._seqB[j-1]) not in self.sub_dict:
+                    raise ValueError(f"Residue pair ({self._seqA[i-1]}, {self._seqB[j-1]}) missing from substitution matrix.")
+                else:
+                    sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])] 
+                    
+                match_score = max(
+                                  self._align_matrix[i-1,j-1] + sub_score,
+                                  self._gapA_matrix[i-1,j-1] + sub_score,
+                                  self._gapB_matrix[i-1,j-1] + sub_score
+                                  )
+              
+                self._align_matrix[i,j] = match_score
         
-                # gapA matrix is max (new gap penalty, continuing gap penalty)
-                # gapA_score = max(
-                #                  self._align_matrix[i-1,j] + self.gap_open,
-                #                  self._gapA_matrix[i-1,j] + self.gap_extend
-                #                  )
-                                 
+                # 1. Update / fill gapA matrix
+                # gapA_matrix[i,j] is max (new gap penalty, continuing gap penalty)
                 gapA_score = max(
                                  self._align_matrix[i-1,j] + self.gap_open + self.gap_extend,  # Start new gap
                                  self._gapA_matrix[i-1,j] + self.gap_extend  # Extend existing gap
@@ -190,36 +203,23 @@ class NeedlemanWunsch:
                 
                 self._gapA_matrix[i,j] = gapA_score
                                               
-                # gapB matrix is max (new gap penalty, continuing gap penalty)
-                # gapB_score = max(
-                #                  self._align_matrix[i,j-1] + self.gap_open,
-                #                  self._gapB_matrix[i,j-1] + self.gap_extend
-                #                  )
-                #                  
+                # 2. Update / fill gapB matrix
+                # gapB_matrix[i,j] is max (new gap penalty, continuing gap penalty)
                 gapB_score = max(
                                  self._align_matrix[i,j-1] + self.gap_open + self.gap_extend,  # Start new gap
                                  self._gapB_matrix[i,j-1] + self.gap_extend  # Extend existing gap
                                  )
                                 
                 self._gapB_matrix[i,j] = gapB_score
-            
-                # get relevant subsitition score (sim(s1[i], s2[j]))
-                # sub_dict: tuple of the two residues as the key and score as value e.g. {('A', 'A'): 4}}
-                if (self._seqA[i-1], self._seqB[j-1]) not in self.sub_dict:
-                    raise ValueError(f"Residue pair ({self._seqA[i-1]}, {self._seqB[j-1]}) missing from substitution matrix.")
-                else:
-                    sub_score = self.sub_dict[(self._seqA[i-1], self._seqB[j-1])] 
-                    
-                match_score = self._align_matrix[i-1, j-1] + sub_score
                 
+                
+                # 4. Update / fill traceback matrix
                 best_align_score = max(
                                        match_score,
                                        gapA_score,
                                        gapB_score
                                        )
                 
-                self._align_matrix[i, j] =  best_align_score                   
-                                       
                 # store traceback direction: 
                 if best_align_score == match_score:
                    self._back[i, j] = 0  # Diagonal 
